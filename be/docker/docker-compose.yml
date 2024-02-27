@@ -7,9 +7,9 @@ services:
     ports:
       - 5432:5432
     environment:
-      POSTGRES_USER: strapi
-      POSTGRES_PASSWORD: strapi
-      POSTGRES_DB: strapi
+      POSTGRES_USER: tnpw
+      POSTGRES_PASSWORD: tnpw
+      POSTGRES_DB: tnpw
     volumes:
       - ./volumes/database:/var/lib/postgresql/data
 
