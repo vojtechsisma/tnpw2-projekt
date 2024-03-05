@@ -1,7 +1,11 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import {
+  HttpStatus,
+  ValidationPipe,
+  ClassSerializerInterceptor,
+} from '@nestjs/common';
 import { PrismaClientExceptionFilter } from 'nestjs-prisma';
-import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { HttpAdapterHost, NestFactory, Reflector } from '@nestjs/core';
 
 import { AppModule } from './app.module';
 
@@ -9,6 +13,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('Simple blog')
     .setDescription('Credit project for TNPW2 course at FIM UHK')
     .build();
@@ -18,6 +23,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.enableCors();
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(

@@ -5,14 +5,17 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
   Controller,
+  ParseIntPipe,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { User } from './entities/user.entity';
+import { UserEntity } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @ApiTags('Users')
 @Controller('users')
@@ -20,30 +23,39 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
+    return new UserEntity(await this.usersService.create(createUserDto));
   }
 
   @Get()
-  findAll(): Promise<User[]> {
-    return this.usersService.findAll();
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async findAll(): Promise<UserEntity[]> {
+    const users = await this.usersService.findAll();
+    return users.map((user) => new UserEntity(user));
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<User> {
-    return this.usersService.findOne(+id);
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<UserEntity> {
+    return new UserEntity(await this.usersService.findOne(id));
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
-    return this.usersService.update(+id, updateUserDto);
+  ): Promise<UserEntity> {
+    return new UserEntity(await this.usersService.update(id, updateUserDto));
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<User> {
-    return this.usersService.remove(+id);
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<UserEntity> {
+    return new UserEntity(await this.usersService.remove(id));
   }
 }
