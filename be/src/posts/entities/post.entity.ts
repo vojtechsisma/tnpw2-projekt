@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { UserEntity } from 'src/users/entities/user.entity';
 
-export class Post {
+export class PostEntity {
   id: number;
 
   slug: string;

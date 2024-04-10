@@ -1,7 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { ApiHideProperty } from '@nestjs/swagger';
 
-import { Post } from 'src/posts/entities/post.entity';
+import { PostEntity } from 'src/posts/entities/post.entity';
 
 export class UserEntity {
   constructor(partial: Partial<UserEntity>) {
@@ -17,7 +17,7 @@ export class UserEntity {
   password: string;
 
   @ApiHideProperty()
-  posts?: Post[];
+  posts?: PostEntity[];
 
   createdAt: Date;
 

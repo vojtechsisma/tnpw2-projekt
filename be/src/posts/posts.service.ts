@@ -1,7 +1,7 @@
 import slugify from 'slugify';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
-import { Post } from './entities/post.entity';
+import { PostEntity } from './entities/post.entity';
 import { PrismaService } from 'src/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -21,14 +21,14 @@ export class PostsService {
     return this.prisma.post.create({ data });
   }
 
-  findAll(): Promise<Post[]> {
+  findAll(): Promise<PostEntity[]> {
     return this.prisma.post.findMany({
       orderBy: { createdAt: 'desc' },
       include: { author: true },
     });
   }
 
-  findOne(slug: string): Promise<Post> {
+  findOne(slug: string): Promise<PostEntity> {
     return this.prisma.post.findUniqueOrThrow({
       where: { slug },
       include: { author: true },
