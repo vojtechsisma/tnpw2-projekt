@@ -1,20 +1,21 @@
 import slugify from 'slugify';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { Post } from './entities/post.entity';
 import { PrismaService } from 'src/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { AuthenticateddRequest } from 'src/lib/types';
 
 @Injectable()
 export class PostsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createPostDto: CreatePostDto) {
+  async create(createPostDto: CreatePostDto, request: AuthenticateddRequest) {
     const data = {
       ...createPostDto,
       slug: slugify(createPostDto.title, { lower: true }),
-      authorId: 1,
+      authorId: request.user.id,
     };
 
     return this.prisma.post.create({ data });
@@ -34,14 +35,38 @@ export class PostsService {
     });
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return this.prisma.post.update({
+  async update(
+    id: number,
+    updatePostDto: UpdatePostDto,
+    request: AuthenticateddRequest,
+  ) {
+    const post = await this.prisma.post.findUnique({
+      where: { id },
+      select: { author: true },
+    });
+
+    if (post.author.id !== request.user.id) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+
+    return await this.prisma.post.update({
       where: { id },
       data: updatePostDto,
     });
   }
 
-  remove(id: number) {
-    return this.prisma.post.delete({ where: { id } });
+  async remove(id: number, request: AuthenticateddRequest) {
+    const post = await this.prisma.post.findUnique({
+      where: { id },
+      select: { author: true },
+    });
+
+    if (post.author.id !== request.user.id) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+
+    return await this.prisma.post.delete({
+      where: { id },
+    });
   }
 }
