@@ -21,11 +21,17 @@ export class PostsService {
   }
 
   findAll(): Promise<Post[]> {
-    return this.prisma.post.findMany();
+    return this.prisma.post.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: { author: true },
+    });
   }
 
   findOne(slug: string): Promise<Post> {
-    return this.prisma.post.findUniqueOrThrow({ where: { slug } });
+    return this.prisma.post.findUniqueOrThrow({
+      where: { slug },
+      include: { author: true },
+    });
   }
 
   update(id: number, updatePostDto: UpdatePostDto) {

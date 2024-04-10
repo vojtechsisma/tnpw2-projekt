@@ -1,3 +1,7 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { User } from '@prisma/client';
+import { UserEntity } from 'src/users/entities/user.entity';
+
 export class Post {
   id: number;
 
@@ -12,4 +16,7 @@ export class Post {
   updatedAt: Date;
 
   authorId: number;
+
+  @ApiProperty({ type: () => UserEntity })
+  author?: User;
 }
