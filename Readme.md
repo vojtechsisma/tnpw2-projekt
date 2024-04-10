@@ -18,6 +18,8 @@ cp .env.example .env
 yarn start:dev
 ```
 
+Swagger UI should is availible on [http://localhost:3000/docs](http://localhost:3000/docs), OpenAPI json on [http://localhost:3000/docs-json](http://localhost:3000/docs-json)
+
 To develop FE locally run
 
 ```
